@@ -57,8 +57,13 @@ class Agent2D(Agent):
             try:
                 u_safe = proj2hull(u_desired.flatten(), equations)
             except Exception as e:
-                print(equations)
-                raise e
+                # print(equations)
+                # print('No solution to safe control from neighbors')
+                equations = np.block([[self.U_lim],
+                                      [self.U_psi]])
+                u_safe = proj2hull(u_desired.flatten(), equations)
+                
+                # raise e
         else:
             u_safe = self.U_bar[0]
         

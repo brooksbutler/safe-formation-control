@@ -57,7 +57,7 @@ class Network:
         
         viable = [False]*self.n
         first_round = [True]*self.n
-        tau = 1
+        tau = 0
 
         weights, A = self.get_weights(xs, args)
         
@@ -70,11 +70,6 @@ class Network:
                 c_bar_in = self.get_neighbor_responsibility(i, N_in)
  
                 delta_i = c_bar_i - c_bar_in
-
-                if len(delta_i) == 576:
-                    print('c_bar_i', c_bar_i.shape)
-                    print('c_bar_in', c_bar_in.shape)
-
 
                 if self.isNotSafe(delta_i):                
                     available_N_in = list(filter(lambda j: j not in agent_i.N_in_constrained, N_in))
@@ -122,7 +117,7 @@ class Network:
         if tau == maxiter:
             print("Maximum iterations reached")
 
-        return viable
+        return viable, tau
     
     def f(self, x):
         return np.vstack([agent_i.DynEqs.f(x,i) for i, agent_i in enumerate(self.agents)])
@@ -173,7 +168,7 @@ class Network:
         for k in tqdm(range(1, numsamples)):
             x = [xs[k - 1, sum(dims_x[:i]):sum(dims_x[:i+1])] for i in range(len(dims_x))]
             if collaborate:
-                viable = self.collaborate(x,maxiter=6)
+                viable, tau = self.collaborate(x,maxiter=6)
             
             u_x = self.u(x, safe=isSafe)
             digital_control = partial(self.dynamics, u=u_x)
