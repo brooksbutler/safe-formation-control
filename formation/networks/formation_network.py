@@ -1,4 +1,5 @@
 import numpy as np
+from time import time
 
 from tqdm import tqdm
 from functools import partial
@@ -71,7 +72,7 @@ class Formation2DNetwork(Network):
         return obs
 
     def simulate(self, x0s, obs0, t0, tf, dt, collaborate=True, isSafe=True, leader_pull=None, dynamic_obs=None):
-        maxiter = 12
+        maxiter = 6
         numsamples = int((tf-t0)/dt)
         ts = np.linspace(t0, tf, numsamples)
 
@@ -86,8 +87,11 @@ class Formation2DNetwork(Network):
 
         xs[0,:] = np.vstack(x0s).flatten()
         os[0,:] = np.vstack(obs0).flatten()
-
+        
+        times = np.array([[0]])
+        
         for k in tqdm(range(1, numsamples)):
+            t1 = time()
             x = [xs[k - 1, sum(dims_x[:i]):sum(dims_x[:i+1])] for i in range(len(dims_x))]
             ### Compute the current spring lengths for all agents ###
             for agent_i in self.agents:
@@ -107,9 +111,15 @@ class Formation2DNetwork(Network):
 
             digital_control = partial(self.dynamics, u=u_x)
             results = RK4.step(digital_control, x, dt)
+
+            t2 = time()
             
             xs[k, :] = results.flatten()
             us[k, :] = u_x.flatten()
             os[k, :] = np.vstack(obs).flatten()
-           
-        return xs, us, os, ts, taus
+        
+            times = np.vstack((
+                times,
+                t2-t1
+            ))
+        return xs, us, os, ts, taus, times

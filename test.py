@@ -81,7 +81,7 @@ def test(args):
     # Set the constant control signal applied to the first agent
     leader_pull  = np.array([[14], [1]])
     collab = True
-    xs, us, os, ts, taus = formation_network.simulate(x0s, obs0, t0, tf, dt, collaborate=collab, isSafe=True, leader_pull=leader_pull, dynamic_obs=dynamic_obstacles)
+    xs, us, os, ts, taus, times = formation_network.simulate(x0s, obs0, t0, tf, dt, collaborate=collab, isSafe=True, leader_pull=leader_pull, dynamic_obs=dynamic_obstacles)
 
     print('Plotting trajectories...')
     plot_trajectories(args.path, xs, us, ts, obs0, taus, safe_dist)
